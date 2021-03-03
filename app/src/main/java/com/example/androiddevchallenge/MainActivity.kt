@@ -71,25 +71,21 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun MyApp(dogs: List<Dog>, context: Context) {
     Surface(color = MaterialTheme.colors.background) {
-        Dogs(dogs = dogs, context = context)
-    }
-}
-
-@Composable
-fun Dogs(
-    dogs: List<Dog>, context: Context, OnItemClick: (Dog) -> Unit = {
-        val intent = Intent()
-        intent.setClass(context, DetailActivity::class.java)
-        val index = dogs.indexOf(it)
-        intent.putExtra("index", index)
-        context.startActivity(intent)
-    }
-) {
-    LazyColumn(contentPadding = PaddingValues(8.dp)) {
-        items(dogs) { dog ->
-            DogItem(dog = dog, Modifier.clickable {
-                OnItemClick(dog)
-            })
+        LazyColumn(contentPadding = PaddingValues(8.dp)) {
+            items(dogs) { dog ->
+                DogItem(
+                    dog = dog,
+                    Modifier.clickable(
+                        onClick = {
+                            val intent = Intent()
+                            intent.setClass(context, DetailActivity::class.java)
+                            val index = dogs.indexOf(dog)
+                            intent.putExtra("index", index)
+                            context.startActivity(intent)
+                        }
+                    )
+                )
+            }
         }
     }
 }
