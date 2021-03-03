@@ -18,44 +18,89 @@ package com.example.androiddevchallenge
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import com.example.androiddevchallenge.data.Dog
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import com.example.androiddevchallenge.viewmodel.DogViewModel
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var dogViewModel: DogViewModel
+
+    @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        dogViewModel = ViewModelProvider(this).get(DogViewModel::class.java)
+
         setContent {
             MyTheme {
-                MyApp()
+                dogViewModel.list.value?.let {
+                    MyApp(list = it)
+                }
             }
         }
     }
 }
 
 // Start building your app here!
+@ExperimentalMaterialApi
 @Composable
-fun MyApp() {
+fun MyApp(list: List<Dog>) {
+    val image = ImageBitmap.Companion.imageResource(R.mipmap.ic_launcher)
+
     Surface(color = MaterialTheme.colors.background) {
-        Text(text = "Ready... Set... GO!")
+        Column {
+            list.forEach { dog ->
+                Card(
+                    shape = RoundedCornerShape(4.dp),
+                    backgroundColor = Color.White,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(ImageBitmap.Companion.imageResource(dog.pic), "")
+                        Text(dog.name)
+                    }
+                }
+            }
+        }
     }
 }
 
+@ExperimentalMaterialApi
 @Preview("Light Theme", widthDp = 360, heightDp = 640)
 @Composable
-fun LightPreview() {
+fun LightPreview(list: List<Dog>) {
     MyTheme {
-        MyApp()
+        MyApp(list = list)
     }
 }
 
+@ExperimentalMaterialApi
 @Preview("Dark Theme", widthDp = 360, heightDp = 640)
 @Composable
-fun DarkPreview() {
+fun DarkPreview(list: List<Dog>) {
     MyTheme(darkTheme = true) {
-        MyApp()
+        MyApp(list = list)
     }
 }
