@@ -15,14 +15,19 @@
  */
 package com.example.androiddevchallenge
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -31,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.example.androiddevchallenge.data.Dog
@@ -51,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MyTheme {
                 dogViewModel.list.value?.let {
-                    MyApp(list = it)
+                    MyApp(dogs = it, this@MainActivity)
                 }
             }
         }
@@ -61,46 +65,46 @@ class MainActivity : AppCompatActivity() {
 // Start building your app here!
 @ExperimentalMaterialApi
 @Composable
-fun MyApp(list: List<Dog>) {
-    val image = ImageBitmap.Companion.imageResource(R.mipmap.ic_launcher)
-
+fun MyApp(dogs: List<Dog>, context: Context) {
     Surface(color = MaterialTheme.colors.background) {
-        Column {
-            list.forEach { dog ->
-                Card(
-                    shape = RoundedCornerShape(4.dp),
-                    backgroundColor = Color.White,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(ImageBitmap.Companion.imageResource(dog.pic), "")
-                        Text(dog.name)
-                    }
-                }
-            }
+        Dogs(dogs = dogs, context = context)
+    }
+}
+
+@Composable
+fun Dogs(
+    dogs: List<Dog>, context: Context, OnItemClick: (Dog) -> Unit = {
+        val intent = Intent()
+        intent.setClass(context, DetailActivity::class.java)
+        val index = dogs.indexOf(it)
+        intent.putExtra("index", index)
+        context.startActivity(intent)
+    }
+) {
+    LazyColumn(contentPadding = PaddingValues(8.dp)) {
+        items(dogs) { dog ->
+            DogItem(dog = dog, Modifier.clickable {
+                OnItemClick(dog)
+            })
         }
     }
 }
 
-@ExperimentalMaterialApi
-@Preview("Light Theme", widthDp = 360, heightDp = 640)
 @Composable
-fun LightPreview(list: List<Dog>) {
-    MyTheme {
-        MyApp(list = list)
-    }
-}
-
-@ExperimentalMaterialApi
-@Preview("Dark Theme", widthDp = 360, heightDp = 640)
-@Composable
-fun DarkPreview(list: List<Dog>) {
-    MyTheme(darkTheme = true) {
-        MyApp(list = list)
+private fun DogItem(dog: Dog, modifier: Modifier = Modifier) {
+    Card(
+        shape = RoundedCornerShape(4.dp),
+        backgroundColor = Color.White,
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(ImageBitmap.imageResource(dog.pic), dog.name)
+            Text(dog.name)
+        }
     }
 }
